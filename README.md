@@ -1,14 +1,28 @@
-# 🍽️ Dashboard Interaktif MBG (Makan Bergizi Gratis)
+# 🍽️ Dashboard BI — Program MBG Nasional
 
-Dashboard eksplorasi data MBG berbasis Streamlit untuk menemukan **ketimpangan antar daerah**, **anomali rasio**, dan **red flags kualitas pelaporan** dari data program MBG.
+Dashboard Business Intelligence interaktif untuk monitoring & evaluasi program MBG (Makan Bergizi Gratis) nasional, dibangun dengan Streamlit + Plotly.
 
-## Fitur
+## Struktur Fitur (Multi-Page App)
 
-- **Toggle level data**: Provinsi / Kabupaten-Kota / Kecamatan
-- **Tab Overview**: ranking & Kurva Lorenz (ketimpangan distribusi)
-- **Tab Bivariat**: scatter plot dinamis (pilih sumbu X/Y bebas) + box plot per provinsi
-- **Tab Multivariat**: correlation heatmap, parallel coordinates, radar chart, clustering K-Means
-- **Tab Red Flags**: duplikat data, rasio ekstrem, ketidakseimbangan volume laporan antar provinsi, anomali gender
+| #     | Fitur                                                        | File                                    |
+| ----- | ------------------------------------------------------------ | --------------------------------------- |
+| 1     | Executive Summary                                            | `app.py`                                |
+| 2     | Analisis Wilayah                                             | `pages/2__Analisis_Wilayah.py`          |
+| 3     | Analisis Demografi                                           | `pages/3__Analisis_Demografi.py`        |
+| 4     | Analisis Kondisi Khusus                                      | `pages/4__Analisis_Kondisi_Khusus.py`   |
+| 5     | Analisis Penerima Manfaat                                    | `pages/5__Analisis_Penerima_Manfaat.py` |
+| 6     | Analisis Sekolah                                             | `pages/6__Analisis_Sekolah.py`          |
+| 7     | Analisis Tren                                                | `pages/7__Analisis_Tren.py`             |
+| 8     | Dashboard Interaktif + Kesimpulan 6 Pertanyaan Kunci         | `pages/8_🎛️_Dashboard_Interaktif.py`    |
+| Bonus | Multivariat Lanjutan (Clustering) & Skor Anomali + Hipotesis | `pages/9_🚩_Bonus_Anomali_Lanjutan.py`  |
+
+Navigasi antar halaman otomatis muncul di sidebar (fitur native Streamlit multipage app).
+
+## Filter Global (Sidebar, konsisten di semua halaman)
+
+Tahun · Provinsi · Kabupaten/Kota · Kecamatan · Jenjang Pendidikan · Tipe Sekolah (Semua/Negeri/Swasta)
+
+> **Catatan filter Negeri/Swasta:** dataset hanya punya _jumlah_ sekolah negeri vs swasta per kecamatan (bukan data peserta didik per jenis sekolah). Filter ini mengganti metrik jumlah satuan pendidikan yang dihitung, bukan memfilter baris data.
 
 ## Jalankan Lokal
 
@@ -21,22 +35,29 @@ streamlit run app.py
 
 ```
 mbg-dashboard/
-├── app.py                  # entry point Streamlit
+├── app.py                          # Fitur 1: Executive Summary (entry point)
+├── pages/                          # Fitur 2-8 + Bonus (auto-navigasi sidebar)
 ├── data/
-│   └── mbg_dataset.csv     # dataset MBG
+│   └── mbg_dataset.csv
 ├── utils/
-│   └── data_loader.py      # load, cleaning, metrik turunan, agregasi
+│   ├── data_loader.py              # load, cleaning, metrik turunan, agregasi, Gini
+│   ├── filters.py                  # filter global sidebar (session_state)
+│   ├── province_coords.py          # koordinat 38 provinsi untuk peta titik
+│   └── hypothesis_engine.py        # skor anomali + bank hipotesis (fitur bonus)
 ├── requirements.txt
-└── .streamlit/config.toml  # tema warna
+└── .streamlit/config.toml
 ```
 
 ## Deploy ke Streamlit Community Cloud
 
-1. Push folder ini ke repo GitHub (public atau private).
+1. Push folder ini ke repo GitHub.
 2. Buka https://share.streamlit.io → New app.
-3. Pilih repo, branch `main`, main file path `app.py`.
+3. Pilih repo, branch `main`, main file path `app.py` (folder `pages/` otomatis terdeteksi).
 4. Klik Deploy.
 
-## Catatan
+## Keterbatasan Data yang Diketahui
 
-Dataset mencakup 36 dari ~38 provinsi Indonesia, level kecamatan, hasil gabungan beberapa file sumber sehingga kelengkapan antar provinsi tidak seragam. Semua insight bersifat deskriptif dan perlu verifikasi lanjutan ke sumber resmi.
+- Dataset mencakup ~36 dari 38 provinsi resmi Indonesia, level kecamatan.
+- Hanya 1 tahun data (2026) — analisis tren tahun-ke-tahun belum bisa dilakukan secara harfiah (lihat Fitur 7 untuk detail & roadmap).
+- Beberapa provinsi memiliki volume baris laporan yang jauh lebih kecil dibanding lainnya — indikasi kelengkapan pengumpulan data yang tidak seragam, bukan indikasi kecilnya pelaksanaan program di sana.
+- Seluruh insight bersifat deskriptif/statistik, perlu verifikasi ke sumber resmi sebelum dijadikan dasar kebijakan.
